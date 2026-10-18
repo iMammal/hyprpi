@@ -4,6 +4,7 @@
 // upload phone files into ~/Phone (the only place it can write), and send files with a short note to
 // a world's Thoughts (📱). iOS doesn't let web apps appear in the Share sheet, so sends start here.
 import { install as installViewer, open as openViewer, onClose as onViewerClose, onSend as onViewerSend } from "/fileview.mjs";
+import { displayWorld } from "/world-labels.mjs";
 // J141: the same app inside the π app's "Fils" tab (/files/?embed=1, an iframe). Only then: "Send…"
 // to Thoughts or any live agent, the world from π's top bar, and π can ask it to open a file. The
 // standalone Files app (no ?embed) is unchanged.
@@ -240,7 +241,7 @@ function sendSheet(paths, { fromViewer = false } = {}) {
   const order = [...byWorld.keys()].sort((x, y) => (x === lastWorld ? -1 : y === lastWorld ? 1 : x.localeCompare(y)));
   const p = sheet(`<h3>Send ${paths.length === 1 ? "this file" : paths.length + " files"} to…</h3>
     <div class="fto"><button type="button" class="fto1 on" data-to="thoughts:${esc(lastWorld)}">💭 Thoughts-${esc(lastWorld)}</button>
-    ${[...new Set([...order, ...worlds.map((w) => w.id)])].map((w) => `<div class="ftow">${esc(w)}</div>` + (w !== lastWorld ? `<button type="button" class="fto1" data-to="thoughts:${esc(w)}">💭 Thoughts-${esc(w)}</button>` : "") + (byWorld.get(w) || []).map((a) => `<button type="button" class="fto1" data-to="${esc(a.id)}" style="color:${esc(a.color || "")}">${esc((a.icon ? a.icon + " " : "") + a.display)}</button>`).join("")).join("")}</div>
+    ${[...new Set([...order, ...worlds.map((w) => w.id)])].map((w) => `<div class="ftow">${esc(displayWorld(worlds.find((x) => x.id === w) || { id: w }))}</div>` + (w !== lastWorld ? `<button type="button" class="fto1" data-to="thoughts:${esc(w)}">💭 Thoughts-${esc(w)}</button>` : "") + (byWorld.get(w) || []).map((a) => `<button type="button" class="fto1" data-to="${esc(a.id)}" style="color:${esc(a.color || "")}">${esc((a.icon ? a.icon + " " : "") + a.display)}</button>`).join("")).join("")}</div>
     <textarea id="ftnote" placeholder="a note (what to do with ${paths.length === 1 ? "it" : "them"})"></textarea>
     <div class="ffiles">${paths.map((x) => "📎 " + esc(tilde(x))).join("<br>")}</div>
     <div class="fact"><button type="button" class="fclose">Cancel</button><button type="button" class="fgo">Send 📱</button></div>`);

@@ -6,6 +6,14 @@ world chips (the desktop bar's worlds: A–E always, F–I while in use, live) a
 Thgt · Proj · Agnt (Proj: this world's projects, one open at a time as a short summary; Agnt: its agents as the desktop agents panel lists them, one open at a time as a short read-only summary; Strm: the world's Stream, one line per event, a tap opens an event in place and closes it again; a 🔍 filter bar at the bottom with the desktop Stream panel's own syntax, kind chips and "search all history"; Fils: the Files app embedded (browse, view, upload to ~/Phone, Share, Send… to Thoughts or any live agent), and file links anywhere in π open there). Board card:
 `@hyprpi-remote-control` (world D). Phone first; an iPad layout comes later.
 
+## Friendly world labels
+
+Set `"worldLabels": {"A": "Main", "E": "Research", "B": "Projects"}` in `~/.config/hyprpi/config.json`. The phone shows these escaped display labels in its scrollable world chips, accessibility titles and page title; unlabelled/invalid values fall back to the letter. Internal IDs, API routes, saved conversations, SSH bindings and access permissions stay unchanged. Labels are organizational, **not privacy boundaries**. Config changes are read on each state request; installing new server code still requires the usual coordinated remote-control service restart, then the app's build refresh.
+
+A label does not create a world. A safe logical room can be initialized through the existing daemon `room.post` API with `{room: "B", text: "Projects world created", deliver: false}` after checking live/dormant agents, rooms, boards and remote bindings for occupancy. This saves one room-log entry without starting Thoughts, agents or desktop windows; the world appears in the normal known-room list. Do not reuse an occupied letter or reset its history. The first ordinary user message starts its Thoughts through the existing lifecycle.
+
+## Components
+
 - `server.mjs`: plain Node, no dependencies. Listens on **127.0.0.1:8897** only, holds one
   connection to the hyprpi daemon (`ui.subscribe`) and relays it to the page as Server-Sent Events.
 - `index.html`, `app.js`, `style.css`: the page (`md.mjs`: its small Markdown renderer, shared with the document viewer; the colours

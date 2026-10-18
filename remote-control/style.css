@@ -32,7 +32,10 @@ a { color: var(--accent); }
 @keyframes pulse { 50% { opacity: .35; } }
 /* Sizes scale with --s (app.js fitTop(): 1 = as big as A–E allows; shrinks only to stay on one line). */
 #top { --s: 1; }
-#worlds { display: flex; gap: calc(var(--s) * 3px); min-width: 0; flex: none; padding-top: 3px; }
+#worlds { display: flex; gap: calc(var(--s) * 3px); min-width: 0; flex: 1; overflow-x: auto; padding: 5px 4px; scrollbar-width: thin; }
+/* Friendly names are readable pills; world chips scroll instead of pushing phone tabs offscreen. */
+.chip.named { width: auto; max-width: 160px; padding: 0 9px; border-radius: 18px; font-size: calc(var(--s) * 13px); }
+.chip.named .world-name { display: block; max-width: 138px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .chip {
   position: relative; flex: none; width: calc(var(--s) * 34px); height: calc(var(--s) * 34px); padding: 0; border-radius: 50%;
   border: 2px solid var(--c); background: transparent; color: var(--c);

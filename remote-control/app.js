@@ -4,6 +4,7 @@ import { threadKind, answerLine, actionPrefix, splitLead, phoneHidden } from "/l
 import { agentIn } from "/lib/tui/agent-click.mjs"; // the desktop panels' Ctrl+click matcher, shared as-is (J45)
 import { esc, href, link, inline, md } from "/md.mjs";
 import { install as installFileViewer, open as openViewer } from "/fileview.mjs";
+import { displayWorld, worldChips } from "/world-labels.mjs";
 // J141: a tapped file LINK (/file?path=…) anywhere in π opens in the Fils tab, in its folder, with
 // the viewer on top; this runs before the J70 overlay's own handler. Thumbnails (J63) and [[wiki]]
 // links still open in the overlay, over the tab they're in.
@@ -226,13 +227,14 @@ function append(e) {
 function renderTop() {
   const cur = worlds.find((w) => w.id === world);
   document.documentElement.style.setProperty("--world", cur?.color || "var(--accent)");
-  document.title = `${world || ""} · Thoughts`;
+  document.title = `${displayWorld(cur || { id: world || "" })} · Thoughts`;
   stopBtn.hidden = !busy;
   $("#dot").className = online ? "on" : "off";
   document.querySelector('.tab[data-tab="thoughts"]').classList.toggle("busy", busy);
   for (const t of document.querySelectorAll(".tab")) t.classList.toggle("cur", t.dataset.tab === (view === "session" ? "agents" : view));
   // The desktop bar's worlds (server: shown), plus the one open here even if it's hidden there.
-  $("#worlds").innerHTML = worlds.filter((w) => w.shown || w.id === world).map((w) => `<button class="chip${w.id === world ? " cur" : ""}${w.sandboxed ? " sbx" : ""}${w.needsYou ? " needs" : w.working || w.thoughtsBusy ? " working" : ""}" style="--c:${esc(w.color)}" data-w="${esc(w.id)}" title="world ${esc(w.id)}${w.sandboxed ? " " + esc(w.sandboxed) + " (sandboxed)" : ""} · ${w.agents} agents${w.working ? ` · ${w.working} working` : ""}${w.needsYou ? ` · ${w.needsYou} need you` : ""}">${esc(w.id)}</button>`).join("");
+  $("#worlds").innerHTML = worldChips(worlds, world);
+  $("#worlds .cur")?.scrollIntoView({ block: "nearest", inline: "nearest" });
   fitTop();
 }
 

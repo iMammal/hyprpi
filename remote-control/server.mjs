@@ -37,6 +37,7 @@ import { worldHex, theme } from "../lib/tui/term.mjs";
 import { filesRoutes } from "./files-routes.mjs"; // the Files app (J74)
 import * as session from "./session-read.mjs";
 import * as gworld from "./gworld.mjs";
+import { worldLabel } from "./world-labels.mjs";
 import * as rworld from "./rworld.mjs"; // J472: a remote world (world H: headless hyprpi on another machine, over ssh / tsh)
 import { sbxIcon, sbxPlaceholder, SBX_MARK, REMOTE_MARK } from "../lib/sandbox-icon.mjs"; // J450: the desktop's sandbox rules (finder, agents panel)
 import { heldForSandboxes, heldDigest, phoneDecision, PHONE_REFUSED_KINDS } from "../lib/held.mjs"; // J434
@@ -173,8 +174,10 @@ setInterval(refreshShown, 30000); // a safety net (shell.json edits, a new Hyprl
 
 function worlds() {
   const ids = new Set(allRooms());
+  const labels = loadConfig().worldLabels;
   return [...ids].filter((id) => /^[A-Z]$/.test(id)).sort().map((id) => ({
     id,
+    label: worldLabel(id, labels),
     color: "#" + (worldHex(id) || "7aa2f7"),
     // J450 (GCheck): a sandboxed world's agents are its inner daemon's (cached by the Agnt list), not the host's placeholders
     agents: (listing?.agents || []).filter((a) => a.room === id && !sbxPlaceholder(a)).length + innerCount(id),
@@ -228,7 +231,7 @@ function directory() {
 // J417 follow-up (Angus's 📎 still showed only images at 13:26): the Home Screen app keeps its page in
 // memory for days, so a new app.js never reaches it. build = the page files' mtimes; the page reloads
 // itself when it changes (app.js applyState).
-const BUILD_FILES = ["index.html", "app.js", "style.css", "md.mjs", "share.mjs", "fileview.mjs", "files.js", "files.css", "files.html"];
+const BUILD_FILES = ["index.html", "app.js", "style.css", "md.mjs", "share.mjs", "fileview.mjs", "files.js", "files.css", "files.html", "world-labels.mjs"];
 const build = () => BUILD_FILES.map((f) => { try { return Math.round(fs.statSync(path.join(HERE, f)).mtimeMs).toString(36); } catch { return "-"; } }).join(".");
 function state() {
   return {
@@ -529,7 +532,7 @@ const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; ch
   // J173: media and documents get their real types (an mp4 used to go out as text/plain, so iOS refused it as a file to share)
   ".mp4": "video/mp4", ".m4v": "video/x-m4v", ".mov": "video/quicktime", ".webm": "video/webm", ".mp3": "audio/mpeg", ".m4a": "audio/mp4", ".aac": "audio/aac", ".wav": "audio/wav", ".ogg": "audio/ogg", ".flac": "audio/flac",
   ".heic": "image/heic", ".avif": "image/avif", ".bmp": "image/bmp", ".csv": "text/csv; charset=utf-8", ".zip": "application/zip" };
-const STATIC = { "/": "index.html", "/index.html": "index.html", "/app.js": "app.js", "/style.css": "style.css", "/manifest.webmanifest": "manifest.webmanifest", "/icon.svg": "icon.svg", "/icon-180.png": "icon-180.png", "/md.mjs": "md.mjs", "/share.mjs": "share.mjs", "/viewer.js": "viewer.js", "/icon-192.png": "icon-192.png", "/icon-512.png": "icon-512.png", "/icon-maskable-512.png": "icon-maskable-512.png", "/icon-360.png": "icon-360.png", "/icon-540.png": "icon-540.png", "/icon-1024.png": "icon-1024.png", "/icon-204.png": "icon-204.png", "/icon-maskable-540.png": "icon-maskable-540.png", /* J61: whole-factor icon sizes */ "/favicon.png": "favicon.png",
+const STATIC = { "/world-labels.mjs": "world-labels.mjs", "/": "index.html", "/index.html": "index.html", "/app.js": "app.js", "/style.css": "style.css", "/manifest.webmanifest": "manifest.webmanifest", "/icon.svg": "icon.svg", "/icon-180.png": "icon-180.png", "/md.mjs": "md.mjs", "/share.mjs": "share.mjs", "/viewer.js": "viewer.js", "/icon-192.png": "icon-192.png", "/icon-512.png": "icon-512.png", "/icon-maskable-512.png": "icon-maskable-512.png", "/icon-360.png": "icon-360.png", "/icon-540.png": "icon-540.png", "/icon-1024.png": "icon-1024.png", "/icon-204.png": "icon-204.png", "/icon-maskable-540.png": "icon-maskable-540.png", /* J61: whole-factor icon sizes */ "/favicon.png": "favicon.png",
   // the Files app (J74): its own page, manifest and icon, so it installs as a second Home Screen app
   "/files/": "files.html", "/files": "files.html", "/files.js": "files.js", "/files.css": "files.css", "/fileview.mjs": "fileview.mjs", "/files-manifest.webmanifest": "files-manifest.webmanifest",
   "/files-icon-180.png": "files-icon-180.png", "/files-icon-192.png": "files-icon-192.png", "/files-icon-512.png": "files-icon-512.png", "/files-icon-maskable-512.png": "files-icon-maskable-512.png",
